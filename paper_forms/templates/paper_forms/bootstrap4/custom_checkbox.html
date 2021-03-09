@@ -1,0 +1,9 @@
+<div class="form-group">
+  <div class="custom-control custom-checkbox">
+    {% include widget.template_name %}
+    <label class="custom-control-label" for="{{ widget.attrs.id }}">{{ label }}</label>
+  </div>
+
+  {% include "paper_forms/bootstrap4/_errors.html" %}
+  {% include "paper_forms/bootstrap4/_help_text.html" %}
+</div>

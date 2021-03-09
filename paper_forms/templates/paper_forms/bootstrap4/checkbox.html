@@ -1,0 +1,9 @@
+<div class="form-group">
+  <div class="form-check">
+    {% include widget.template_name %}
+    <label class="form-check-label" for="{{ widget.attrs.id }}">{{ label }}</label>
+  </div>
+
+  {% include "paper_forms/bootstrap4/_errors.html" %}
+  {% include "paper_forms/bootstrap4/_help_text.html" %}
+</div>

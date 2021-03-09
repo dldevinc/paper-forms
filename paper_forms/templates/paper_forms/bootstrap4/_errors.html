@@ -1,0 +1,9 @@
+{% if errors %}
+  <ul class="list-unstyled mt-1 mb-0 small">
+    {% for error in errors %}
+      <li>
+        <span class="text-danger">{{ error }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

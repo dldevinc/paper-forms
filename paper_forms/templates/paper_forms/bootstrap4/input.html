@@ -1,0 +1,8 @@
+<div class="form-group{% if widget.required %} required{% endif %}">
+  <label for="{{ widget.attrs.id }}" class="mb-1">{{ label }}</label>
+
+  {% include widget.template_name %}
+
+  {% include "paper_forms/bootstrap4/_errors.html" %}
+  {% include "paper_forms/bootstrap4/_help_text.html" %}
+</div>

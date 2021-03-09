@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Example page</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <style>
+      .required label:after {
+          content: '*';
+          color: #dc3545;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container py-5">
+
+      {% if messages or form.non_field_errors %}
+        <ul class="list-unstyled">
+          {% for message in messages %}
+            <li>
+              <div class="alert alert-success" role="alert">
+                {{ message }}
+              </div>
+            </li>
+          {% endfor %}
+
+          {% for message in form.non_field_errors() %}
+            <li>
+              <div class="alert alert-danger" role="alert">
+                {{ message }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {{ csrf_input }}
+
+        <fieldset>
+          <legend>Text fields</legend>
+          {% field form.char, placeholder="Enter your name" %}
+          {% field form.number %}
+          {% field form.email, placeholder="e.g. user@gmail.com" %}
+          {% field form.password, placeholder="Enter your password" %}
+          {% field form.url, placeholder="Enter your website" %}
+          {% field form.text, placeholder="Enter some text", rows=4 %}
+        </fieldset>
+
+        <fieldset class="mt-4">
+          <legend>Selects</legend>
+          {% field form.select %}
+          {% field form.select_multiple %}
+        </fieldset>
+
+        <fieldset class="mt-4">
+          <legend>File fields</legend>
+          {% field form.file %}
+          {% field form.image %}
+        </fieldset>
+
+        <fieldset class="mt-4">
+          <legend>Checkboxes</legend>
+          {% field form.checkbox %}
+          {% field form.custom_checkbox, class="custom-control-input" %}
+          {% field form.checkbox_multiple %}
+          {% field form.custom_checkbox_multiple, class="custom-control-input" %}
+        </fieldset>
+
+        <fieldset class="mt-4">
+          <legend>Radios</legend>
+          {% field form.radio %}
+          {% field form.custom_radio, class="custom-control-input" %}
+        </fieldset>
+
+        <fieldset class="mt-4">
+          <legend>Hidden and Readonly</legend>
+          {% field form.honeypot %}
+          {% field form.readonly, readonly=True %}
+        </fieldset>
+
+        <button type="submit" class="btn btn-success mt-3">
+          Submit
+        </button>
+
+        <button type="submit" name="add-errors" class="btn btn-danger mt-3 ml-3">
+          Submit with errors
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
