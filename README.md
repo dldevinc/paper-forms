@@ -97,7 +97,11 @@ All double-underscores in `{% field %}` arguments are replaced with single dashe
 
 ```html
 {% field form.name data__original__name="Name"  %}
-<!-- would render to something like --> 
+```
+
+would render to something like
+
+```html
 <input ... data-original-name="Name" />
 ```
 
