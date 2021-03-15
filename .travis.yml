@@ -4,6 +4,7 @@ python:
 - 3.8
 - 3.7
 - 3.6
+- 3.5
 
 before_install:
 - pip install -U pip setuptools wheel tox-travis
@@ -12,7 +13,7 @@ before_install:
 branches:
   only:
   - master
-  - '/^v?\d(\.\d+)+$/'
+  - "/^v?\\d(\\.\\d+)+$/"
 
 script:
 - python setup.py sdist
@@ -27,8 +28,8 @@ deploy:
   skip_cleanup: true
   user: __token__
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: FwX6f5rSgztFNtpmUtRyReUFH1GEB0U2aLedPWckqInERsN3ZfNa39hdr6AMDMRH7wVX9NGTDsBLKC76ClFPhwS8oJ+QOaN5GxWAWdYLMe0CxpwpUbAIsfFgCloa53pu35knAoqeciRVogLok7Epfze7kXLXxWCPbYXeJbMovwVDSJoUwTKj807yShTJqxtiuGgf3SsUXFAn4uRAJAinOUZvNgHjIzey1jhDFfOGuFYIvgAo+brsoaETRxjgg4ZU8wC7wbjG8deP58kIQkEajnS3q22c5CPZXPtaNpuF8HWiWRuxDnwo13OZPdu1cgHsxzcQD3Z2JIBBTcZO9chc/HyTb0PDbNGtjyhwUn27BNYZGNfG33X++YH0PivMtQCrsB37eRYFcIRFAo3wSqSg0JzBPoXk3h1mCYbO9idBijsB8sb1qOp4DBpQTYtGWIM8cYT9W87sRAjW/S4+F3DSkr7vhzMbFJ6rMATQvvm/BgTdC7ucDU4dYNWXiB0NyoQNx7ww65uBoqzH6iFNnPUu6ekkzVM++jQHqTJs/qIPygo0EQQBCK7yp2XYc6Fs0OH+DizHgBpsuba+X9ccYdsPT78W40vVHm5csjz2mYBA2PEJLq0z64VAsuke666RMR+bkgd2Ppj+Lu5VCE/JjMv5gvTWqwoEiib6pefwTDy6/aI=
   on:
     repo: dldevinc/paper-forms
-    condition: $TRAVIS_PYTHON_VERSION = 3.8
+    condition: "$TRAVIS_PYTHON_VERSION = 3.8"
     tags: true
