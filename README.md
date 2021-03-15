@@ -93,7 +93,7 @@ This is because `@simple_tag` is quite restrictive and [doesn't allow dashes](ht
 in kwargs names. 
 
 A way to get around this limitation is to use double-underscore.
-All double-underscore in `{% field %}` arguments are replaced with single dash:
+All double-underscores in `{% field %}` arguments are replaced with single dashes:
 
 ```html
 {% field form.name data__original__name="Name"  %}
