@@ -2,6 +2,8 @@ from typing import Any, Dict
 
 from django.utils.module_loading import import_string
 
+from .. import conf
+
 
 class SingletonMeta(type):
     _instances = {}  # type: Dict[Any, 'BaseComposer']
@@ -21,11 +23,13 @@ class BaseComposer(metaclass=SingletonMeta):
     template_names = None   # type: Dict[str, Any]
 
     def get_renderer(self, form):
-        if isinstance(self.renderer, str):
-            renderer_class = import_string(self.renderer)
+        renderer = self.renderer or form.default_renderer or conf.DEFAULT_FORM_RENDERER
+        if isinstance(renderer, str):
+            renderer_class = import_string(renderer)
             return renderer_class()
-
-        return self.renderer or form.renderer
+        elif isinstance(renderer, type):
+            return renderer()
+        return renderer
 
     def get_default_template_name(self, widget):
         """

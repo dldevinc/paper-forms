@@ -197,3 +197,79 @@ class Bootstrap4(BaseComposer):
         else:
             return "form-control"
 ```
+
+## Settings
+
+* `PAPER_FORMS_DEFAULT_COMPOSER`<br>
+  Default Composer class to be used for any Form that don’t specify a particular composer.<br>
+  Default: `paper_forms.composers.base.BaseComposer`
+
+* `PAPER_FORMS_DEFAULT_FORM_RENDERER`<br>
+  The class that renders form widgets.<br>
+  Default: `None`
+
+## A `FORM_RENDERER` problem
+
+If you use `django-jinja` (or any other third-party template engine) as your default 
+template engine, you may also want to use it for your form field templates. 
+It's a bit tricky because Django's form widgets are rendered using [form renderers](https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#built-in-template-form-renderers).
+
+It means that even if your page are rendered with `django-jinja`, the form on
+that page renders through Django Templates. 
+
+You should not change [FORM_RENDERER](https://docs.djangoproject.com/en/3.1/ref/settings/#form-renderer) 
+setting, because it can break the admin interface. Most of the third-party
+widgets are designed for the Django Templates.
+
+Two steps are needed to get around this problem.
+
+1. Make built-in widget templates searcheable.
+   
+    ```python
+    # settings.py
+   
+    from django.forms.renderers import ROOT  # <---
+    
+    TEMPLATES = [
+        {
+            "NAME": "jinja2",
+            "BACKEND": "django_jinja.backend.Jinja2",
+            "DIRS": [
+                BASE_DIR / "templates",
+                ROOT / "jinja2"              # <---
+            ],
+            # ...
+        }
+   ]
+    ```
+
+2. Use `TemplateSettings` renderer for you forms, or implement your own.
+   There are several ways to do this:
+   1. `PAPER_FORMS_DEFAULT_FORM_RENDERER` setting.
+      ```python
+      # settings.py
+      
+      PAPER_FORMS_DEFAULT_FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+      ```
+   2. [Form.default_renderer](https://docs.djangoproject.com/en/3.1/ref/forms/api/#django.forms.Form.default_renderer)
+      ```python
+      from django import forms
+      from django.forms.renderers import TemplatesSetting
+
+      class ExampleForm(forms.Form):
+          default_renderer = TemplatesSetting
+          # ...
+      ```
+   3. `Composer.renderer` field
+      ```python
+      from django import forms
+      from paper_forms.composers.base import BaseComposer
+      
+      
+      class ExampleForm(forms.Form):
+          name = forms.CharField()
+      
+          class Composer(BaseComposer):
+              renderer = "django.forms.renderers.TemplatesSetting"
+      ```
+      
