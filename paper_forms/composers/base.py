@@ -34,7 +34,7 @@ class BaseComposer(metaclass=SingletonMeta):
     def get_default_template_name(self, widget):
         """
         Overrides the widget template, but has a lower priority
-        than the 'template_names' field.
+        than the 'template_names' attribute of the Composer class.
         """
         return widget.template_name
 
@@ -50,5 +50,5 @@ class BaseComposer(metaclass=SingletonMeta):
         return attrs
 
     def build_widget_context(self, widget, context):
-        # Here you can edit the context of the widget
+        # Here you can edit the context of the form field
         return context

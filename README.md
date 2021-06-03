@@ -20,7 +20,7 @@ Add `paper_forms` to your INSTALLED_APPS in `settings.py`:
 
 ```python
 INSTALLED_APPS = (
-    # other apps
+    # ...
     "paper_forms",
 )
 ```
@@ -32,7 +32,7 @@ INSTALLED_APPS = (
 
 ## Usage
 
-Let’s create our first Django paper form.
+Let’s create our first Django form.
 
 ```python
 from django import forms
@@ -41,10 +41,9 @@ class ExampleForm(forms.Form):
     name = forms.CharField()
     age = forms.IntegerField()
 ```
+No mixins. No third-party classes. Just a simple Django form.
 
-Yeap. No mixins, no base classes. Just a simple Django form.
-
-Now, let’s render our form:
+Now, let’s render our form by using the `{% field %}` template tag:
 ```html
 {% load paper_forms %}
 
@@ -64,7 +63,8 @@ This is exactly the html that you would get:
 ```
 
 As you can see, a `{% field form.field %}` template tag behaves 
-exactly like `{{ form.field }}`.
+exactly like `{{ form.field }}`. This is how you can integrate
+`paper-forms` with your Django project.
 
 Now, let's add some customization.
 
@@ -105,38 +105,10 @@ would render to something like
 <input ... data-original-name="Name" />
 ```
 
-### Write your own field templates
+### Override widget templates with `Composer`
 
-Example: 
-```html
-<div class="form-field">
-  <label for="{{ widget.attrs.id }}">{{ label }}</label>
-  
-  <!-- include default widget template -->
-  {% include widget.template_name %}
-
-  <!-- show field errors --> 
-  {% if errors %}
-    <ul>
-      {% for error in errors %}
-        <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  
-  <!-- show help text -->
-  {% if help_text %}
-    <small>{{ help_text }}</small>
-  {% endif %}
-</div>
-```
-
-The `paper_forms` not only makes it possible to override widget templates,
-but also *extends* them to form field templates.
-
-### Override widget template with `Composer`
-
-Composer is a tool which gives you full control over form field rendering.
+Composer is a tool which gives you full control over form 
+field rendering.
 
 Example:
 
@@ -168,9 +140,38 @@ class ExampleForm(forms.Form):
 
 As you can see, attributes such as `widgets`, `labels` and `help_texts`
 are very similar to [those](https://docs.djangoproject.com/en/3.1/topics/forms/modelforms/#overriding-the-default-fields)
-of the `ModelForm`'s `Meta` class.
+of the `ModelForm`'s `Meta` class. **The data specified in the Composer 
+fields have the highest priority.**
 
-**The data specified in the composer fields have the highest priority.**
+There is also the `template_names` attribute which allows you to
+override a form field templates. Form field template context *is a 
+widget context*, extended with `label`, `errors` and `help_text` 
+values. You can add your own data by overriding the
+`build_widget_context` method in your Composer class.
+
+Template example:
+```html
+<div class="form-field">
+  <label for="{{ widget.attrs.id }}">{{ label }}</label>
+  
+  <!-- include default widget template -->
+  {% include widget.template_name %}
+
+  <!-- show field errors --> 
+  {% if errors %}
+    <ul>
+      {% for error in errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  
+  <!-- show help text -->
+  {% if help_text %}
+    <small>{{ help_text }}</small>
+  {% endif %}
+</div>
+```
 
 ### Create your own `Composer` subclass for web frameworks
 
@@ -182,8 +183,8 @@ from paper_forms.composers.base import BaseComposer
 
 class Bootstrap4(BaseComposer):
     def get_default_template_name(self, widget):
-        # Overrides the widget template, but has a lower priority 
-        # than the 'template_names' field.
+        # Overrides the widget template, but has a lower priority
+        # than the 'template_names' attribute of the Composer class.
         if isinstance(widget, widgets.CheckboxInput):
             return "paper_forms/bootstrap4/checkbox.html"
         else:
@@ -201,7 +202,8 @@ class Bootstrap4(BaseComposer):
 ## Settings
 
 * `PAPER_FORMS_DEFAULT_COMPOSER`<br>
-  Default Composer class to be used for any Form that don’t specify a particular composer.<br>
+  Default Composer class to be used for any Form that don’t specify 
+  a particular composer.<br>
   Default: `paper_forms.composers.base.BaseComposer`
 
 * `PAPER_FORMS_DEFAULT_FORM_RENDERER`<br>
