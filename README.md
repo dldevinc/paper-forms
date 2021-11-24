@@ -6,8 +6,8 @@ A form templating app for Django
 [![Software license](https://img.shields.io/pypi/l/paper-forms.svg)](https://pypi.org/project/paper-forms/)
 
 ## Compatibility
-* `python` >= 3.5
-* `django` >= 1.11
+* `python` >= 3.6
+* `django` >= 2.2
 
 ## Installation
 Install the latest release with pip:
