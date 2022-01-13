@@ -2,7 +2,7 @@
 A form templating app for Django
 
 [![PyPI](https://img.shields.io/pypi/v/paper-forms.svg)](https://pypi.org/project/paper-forms/)
-[![Build Status](https://travis-ci.com/dldevinc/paper-forms.svg?branch=master)](https://travis-ci.org/dldevinc/paper-forms)
+[![Build Status](https://github.com/dldevinc/paper-forms/actions/workflows/tests.yml/badge.svg)](https://github.com/dldevinc/paper-forms)
 [![Software license](https://img.shields.io/pypi/l/paper-forms.svg)](https://pypi.org/project/paper-forms/)
 
 ## Compatibility
