@@ -230,7 +230,8 @@ Two steps are needed to get around this problem.
     ```python
     # settings.py
    
-    from django.forms.renderers import ROOT  # <---
+    from pathlib import Path
+    from django import forms
     
     TEMPLATES = [
         {
@@ -238,7 +239,7 @@ Two steps are needed to get around this problem.
             "BACKEND": "django_jinja.backend.Jinja2",
             "DIRS": [
                 BASE_DIR / "templates",
-                ROOT / "jinja2"              # <---
+                Path(forms.__file__) / "jinja2"        # <---
             ],
             # ...
         }
