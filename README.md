@@ -239,7 +239,7 @@ Two steps are needed to get around this problem.
             "BACKEND": "django_jinja.backend.Jinja2",
             "DIRS": [
                 BASE_DIR / "templates",
-                Path(forms.__file__) / "jinja2"        # <---
+                Path(forms.__file__).parent / "jinja2"        # <---
             ],
             # ...
         }
