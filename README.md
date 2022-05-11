@@ -28,7 +28,7 @@ INSTALLED_APPS = (
 ## Features
 * [Jinja2](https://jinja.palletsprojects.com/) support.
 * [django-jinja](https://github.com/niwinz/django-jinja) support.
-* Add or replace attributes to form fields using a template tag.
+* Add or replace form field attributes with a template tag.
 
 ## Usage
 
