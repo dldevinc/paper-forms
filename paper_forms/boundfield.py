@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+import django
 from django.forms.boundfield import BoundField as _BoundField
 from django.forms.boundfield import BoundWidget
 from django.utils.functional import cached_property
@@ -37,7 +38,7 @@ class BoundField(_BoundField):
         context = widget.get_context(
             name=self.html_initial_name if only_initial else self.html_name,
             value=self.value(),
-            attrs=attrs,
+            attrs=attrs
         )
 
         context["errors"] = self.errors
@@ -102,9 +103,12 @@ class BoundField(_BoundField):
     @property
     def data(self):
         # Use self.widget instead of self.field.widget
-        return self.widget.value_from_datadict(
-            self.form.data, self.form.files, self.html_name
-        )
+        if django.VERSION >= (4, 0):
+            return self.form._widget_data_value(self.widget, self.html_name)
+        else:
+            return self.widget.value_from_datadict(
+                self.form.data, self.form.files, self.html_name
+            )
 
     @property
     def is_hidden(self):
@@ -121,7 +125,10 @@ class BoundField(_BoundField):
     def initial(self):
         # Use self.widget instead of self.field.widget
         data = self.form.get_initial_for_field(self.field, self.name)
-        if (isinstance(data, (datetime.datetime, datetime.time)) and
-                not self.widget.supports_microseconds):
-            data = data.replace(microsecond=0)
+        if django.VERSION < (4, 0):
+            # If this is an auto-generated default date, nix the microseconds for
+            # standardized handling. See #22502.
+            if (isinstance(data, (datetime.datetime, datetime.time)) and
+                    not self.widget.supports_microseconds):
+                data = data.replace(microsecond=0)
         return data
