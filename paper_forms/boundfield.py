@@ -16,9 +16,9 @@ class BoundField(_BoundField):
             # default template
             return widget.template_name
 
-        template_names = self.composer.template_names
-        if template_names and self.name in template_names:
-            return template_names[self.name]
+        composer_template_names = self.composer.template_names
+        if composer_template_names and self.name in composer_template_names:
+            return composer_template_names[self.name]
 
         return self.composer.get_default_template_name(widget)
 
@@ -26,10 +26,10 @@ class BoundField(_BoundField):
         attrs = attrs or {}
         attrs = self.build_widget_attrs(attrs, widget)
 
-        css_classes = attrs.pop("class", self.composer.get_default_css_classes(widget))
-        css_classes = self.css_classes(css_classes)
-        if css_classes:
-            attrs["class"] = css_classes
+        composer_css_classes = attrs.pop("class", self.composer.get_default_css_classes(widget))
+        composer_css_classes = self.css_classes(composer_css_classes)
+        if composer_css_classes:
+            attrs["class"] = composer_css_classes
 
         return self.composer.build_widget_attrs(widget, attrs)
 
@@ -42,15 +42,15 @@ class BoundField(_BoundField):
 
         context["errors"] = self.errors
 
-        labels = self.composer.labels
-        if labels and self.name in labels:
-            context["label"] = labels[self.name]
+        composer_labels = self.composer.labels
+        if composer_labels and self.name in composer_labels:
+            context["label"] = composer_labels[self.name]
         else:
             context["label"] = self.label
 
-        help_texts = self.composer.help_texts
-        if help_texts and self.name in help_texts:
-            context["help_text"] = help_texts[self.name]
+        composer_help_texts = self.composer.help_texts
+        if composer_help_texts and self.name in composer_help_texts:
+            context["help_text"] = composer_help_texts[self.name]
         else:
             context["help_text"] = self.help_text
 
@@ -75,9 +75,9 @@ class BoundField(_BoundField):
 
     @cached_property
     def widget(self):
-        widgets = self.composer.widgets
-        if widgets and self.name in widgets:
-            widget = widgets[self.name]
+        composer_widgets = self.composer.widgets
+        if composer_widgets and self.name in composer_widgets:
+            widget = composer_widgets[self.name]
             if isinstance(widget, type):
                 widget = widget()
             else:
