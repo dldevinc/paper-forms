@@ -89,8 +89,8 @@ Result:
 ```
 
 **Note** that you cannot specify an attribute with a dashes, like `data-src`.
-This is because `@simple_tag` is quite restrictive and [doesn't allow dashes](https://code.djangoproject.com/ticket/21077) 
-in kwargs names. 
+This is because `@simple_tag` is quite restrictive and [doesn't allow dashes](https://code.djangoproject.com/ticket/21077)
+in kwargs names.
 
 A way to get around this limitation is to use double-underscore.
 All double-underscores in `{% field %}` arguments are replaced with single dashes:

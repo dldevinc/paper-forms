@@ -21,7 +21,7 @@ def _tag(form_field, **attrs):
         composer=get_composer(form),
     )
 
-    # support "data-*" attributes
+    # Trick for attributes with dashes
     attrs = {
         key.replace("__", "-"): value
         for key, value in attrs.items()
