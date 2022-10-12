@@ -173,6 +173,10 @@ Template example:
 </div>
 ```
 
+
+> ⚠ WARNING! `paper_forms` does not call the widget's `render()` method. This can be a problem for third-party widgets.
+
+
 ### Create your own `Composer` subclass for web frameworks
 
 Example:
