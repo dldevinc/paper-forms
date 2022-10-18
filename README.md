@@ -30,6 +30,8 @@ INSTALLED_APPS = (
 * [django-jinja](https://github.com/niwinz/django-jinja) support.
 * Add or replace form field attributes with a template tag.
 
+> ⚠ WARNING! `paper_forms` does not call the widget's `render()` method. This can be a problem for third-party widgets.
+
 ## Usage
 
 Let’s create our first Django form.
