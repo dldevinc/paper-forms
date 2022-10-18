@@ -22,6 +22,11 @@
     pip install -r ./requirements.txt
     pip install -e .
     ```
+1. Run test project:
+    ```shell
+    python3 manage.py migrate
+    python3 manage.py runserver
+    ```
 
 #### Pre-Commit Hooks
 We use [`pre-commit`](https://pre-commit.com/) hooks to simplify linting 
