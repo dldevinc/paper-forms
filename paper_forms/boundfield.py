@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+import django
 from django.forms.boundfield import BoundField as _BoundField
 from django.forms.boundfield import BoundWidget
 from django.utils.functional import cached_property
@@ -16,9 +17,9 @@ class BoundField(_BoundField):
             # default template
             return widget.template_name
 
-        template_names = self.composer.template_names
-        if template_names and self.name in template_names:
-            return template_names[self.name]
+        composer_template_names = self.composer.template_names
+        if composer_template_names and self.name in composer_template_names:
+            return composer_template_names[self.name]
 
         return self.composer.get_default_template_name(widget)
 
@@ -26,10 +27,10 @@ class BoundField(_BoundField):
         attrs = attrs or {}
         attrs = self.build_widget_attrs(attrs, widget)
 
-        css_classes = attrs.pop("class", self.composer.get_default_css_classes(widget))
-        css_classes = self.css_classes(css_classes)
-        if css_classes:
-            attrs["class"] = css_classes
+        composer_css_classes = attrs.pop("class", self.composer.get_default_css_classes(widget))
+        composer_css_classes = self.css_classes(composer_css_classes)
+        if composer_css_classes:
+            attrs["class"] = composer_css_classes
 
         return self.composer.build_widget_attrs(widget, attrs)
 
@@ -37,20 +38,20 @@ class BoundField(_BoundField):
         context = widget.get_context(
             name=self.html_initial_name if only_initial else self.html_name,
             value=self.value(),
-            attrs=attrs,
+            attrs=attrs
         )
 
         context["errors"] = self.errors
 
-        labels = self.composer.labels
-        if labels and self.name in labels:
-            context["label"] = labels[self.name]
+        composer_labels = self.composer.labels
+        if composer_labels and self.name in composer_labels:
+            context["label"] = composer_labels[self.name]
         else:
             context["label"] = self.label
 
-        help_texts = self.composer.help_texts
-        if help_texts and self.name in help_texts:
-            context["help_text"] = help_texts[self.name]
+        composer_help_texts = self.composer.help_texts
+        if composer_help_texts and self.name in composer_help_texts:
+            context["help_text"] = composer_help_texts[self.name]
         else:
             context["help_text"] = self.help_text
 
@@ -75,9 +76,9 @@ class BoundField(_BoundField):
 
     @cached_property
     def widget(self):
-        widgets = self.composer.widgets
-        if widgets and self.name in widgets:
-            widget = widgets[self.name]
+        composer_widgets = self.composer.widgets
+        if composer_widgets and self.name in composer_widgets:
+            widget = composer_widgets[self.name]
             if isinstance(widget, type):
                 widget = widget()
             else:
@@ -102,9 +103,12 @@ class BoundField(_BoundField):
     @property
     def data(self):
         # Use self.widget instead of self.field.widget
-        return self.widget.value_from_datadict(
-            self.form.data, self.form.files, self.html_name
-        )
+        if django.VERSION >= (4, 0):
+            return self.form._widget_data_value(self.widget, self.html_name)
+        else:
+            return self.widget.value_from_datadict(
+                self.form.data, self.form.files, self.html_name
+            )
 
     @property
     def is_hidden(self):
@@ -121,7 +125,10 @@ class BoundField(_BoundField):
     def initial(self):
         # Use self.widget instead of self.field.widget
         data = self.form.get_initial_for_field(self.field, self.name)
-        if (isinstance(data, (datetime.datetime, datetime.time)) and
-                not self.widget.supports_microseconds):
-            data = data.replace(microsecond=0)
+        if django.VERSION < (4, 0):
+            # If this is an auto-generated default date, nix the microseconds for
+            # standardized handling. See #22502.
+            if (isinstance(data, (datetime.datetime, datetime.time)) and
+                    not self.widget.supports_microseconds):
+                data = data.replace(microsecond=0)
         return data

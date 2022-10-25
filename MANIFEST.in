@@ -1,8 +1,7 @@
 include LICENSE
-include README.md
-include CHANGELOG.md
+include *.md
 
-recursive-include paper_forms *.html
-recursive-exclude tests *
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+graft paper_forms
+global-exclude .git*
+global-exclude __pycache__
+global-exclude *.py[co]
