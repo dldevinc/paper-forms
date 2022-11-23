@@ -55,7 +55,10 @@ Now, let’s render our form by using the `{% field %}` template tag:
 ```html
 {% load paper_forms %}
 
-<form method="post">{% field form.name %} {% field form.age %}</form>
+<form method="post">
+    {% field form.name %}
+    {% field form.age %}
+</form>
 ```
 
 This is exactly the html that you would get:
@@ -81,8 +84,8 @@ The simplest thing you can do is to add (or replace) attributes to the widget:
 {% load paper_forms %}
 
 <form method="post">
-    {% field form.name placeholder="Enter your name" %} {% field form.age placeholder="Enter your age"
-    title=form.age.label %}
+    {% field form.name placeholder="Enter your name" %}
+    {% field form.age placeholder="Enter your age" title=form.age.label %}
 </form>
 ```
 
