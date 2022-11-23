@@ -34,7 +34,7 @@ INSTALLED_APPS = (
 -   [django-jinja](https://github.com/niwinz/django-jinja) support.
 -   Add or replace form field attributes with a template tag.
 
-> ⚠ WARNING! `paper_forms` does not call the widget's `render()` method. This can be a problem for third-party widgets.
+> ⚠ WARNING! `paper_forms` does not call the widget's `render()` method. This could be a problem for third-party widgets.
 
 ## Usage
 
