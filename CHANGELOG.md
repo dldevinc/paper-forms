@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.2.1](https://github.com/dldevinc/paper-forms/tree/v0.2.1) - 2023-01-09
+
+### Features
+
+-   Add Python 3.11 support (no code changes were needed, but now we test this release).
+
 ## [0.2.0](https://github.com/dldevinc/paper-forms/tree/v0.2.0) - 2022-01-12
 
 -   Support Python 3.10 and Django-4.0
