@@ -1,9 +1,15 @@
 import re
 
-import django
 import pytest
 from django import forms
 from django.template import engines
+
+from paper_forms.composers.base import BaseComposer
+
+
+class MyComposer(BaseComposer):
+    def get_default_template_name(self, widget):
+        return "fields/field.html"
 
 
 class SimpleForm(forms.Form):
@@ -25,6 +31,11 @@ class SimpleForm(forms.Form):
         )
     )
     terms = forms.BooleanField()
+
+
+class ExtendedForm(SimpleForm):
+    class Composer(MyComposer):
+        pass
 
 
 class TestDjangoTemplates:
@@ -99,6 +110,44 @@ class TestDjangoTemplates:
             '<input type="text" name="name" data-field-title="Enter your name" id="id_name">',
             '<input type="text" name="name" id="id_name" data-field-title="Enter your name">'
         }
+
+    def test_custom_form_template(self):
+        template = self.engine.from_string(
+            '{% load paper_forms %}'
+            '{% field form.name %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '</div>'
+        )
+
+    def test_label_attribute(self):
+        template = self.engine.from_string(
+            '{% load paper_forms %}'
+            '{% field form.name label="Your name" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Your name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '</div>'
+        )
 
 
 class TestJinja2:
@@ -176,3 +225,45 @@ class TestJinja2:
             '<input type="text" name="name" data-field-title="Enter your name" id="id_name">',
             '<input type="text" name="name" id="id_name" data-field-title="Enter your name">'
         }
+
+    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
+    def test_custom_form_template(self, engine_name):
+        engine = engines[engine_name]
+
+        template = engine.from_string(
+            '{% field form.name %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '</div>'
+        )
+
+    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
+    def test_label_attribute(self, engine_name):
+        engine = engines[engine_name]
+
+        template = engine.from_string(
+            '{% field form.name, label="Your name" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Your name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '</div>'
+        )
