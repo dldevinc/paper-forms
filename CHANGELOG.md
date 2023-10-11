@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.2.2](https://github.com/dldevinc/paper-forms/tree/v0.2.2) - 2023-10-11
+
+### Features
+
+-   You can now customize form field labels using the `{% field %}` template tag. 
+    Set your preferred label values like this: `{% field form.name label="Your name" %}`
+
 ## [0.2.1](https://github.com/dldevinc/paper-forms/tree/v0.2.1) - 2023-01-09
 
 ### Features

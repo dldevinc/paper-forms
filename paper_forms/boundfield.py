@@ -35,6 +35,8 @@ class BoundField(_BoundField):
         return self.composer.build_widget_attrs(widget, attrs)
 
     def get_context(self, widget, attrs=None, only_initial=False):
+        label = attrs.pop("label", None) if isinstance(attrs, dict) else None
+
         context = widget.get_context(
             name=self.html_initial_name if only_initial else self.html_name,
             value=self.value(),
@@ -43,11 +45,14 @@ class BoundField(_BoundField):
 
         context["errors"] = self.errors
 
-        composer_labels = self.composer.labels
-        if composer_labels and self.name in composer_labels:
-            context["label"] = composer_labels[self.name]
+        if label is not None:
+            context["label"] = label
         else:
-            context["label"] = self.label
+            composer_labels = self.composer.labels
+            if composer_labels and self.name in composer_labels:
+                context["label"] = composer_labels[self.name]
+            else:
+                context["label"] = self.label
 
         composer_help_texts = self.composer.help_texts
         if composer_help_texts and self.name in composer_help_texts:
