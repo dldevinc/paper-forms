@@ -34,9 +34,7 @@ class BoundField(_BoundField):
 
         return self.composer.build_widget_attrs(widget, attrs)
 
-    def get_context(self, widget, attrs=None, only_initial=False):
-        label = attrs.pop("label", None) if isinstance(attrs, dict) else None
-
+    def get_context(self, widget, attrs=None, extra_context=None, only_initial=False):
         context = widget.get_context(
             name=self.html_initial_name if only_initial else self.html_name,
             value=self.value(),
@@ -44,25 +42,25 @@ class BoundField(_BoundField):
         )
 
         context["errors"] = self.errors
+        context.update(extra_context or {})
 
-        if label is not None:
-            context["label"] = label
-        else:
+        if "label" not in context:
             composer_labels = self.composer.labels
             if composer_labels and self.name in composer_labels:
                 context["label"] = composer_labels[self.name]
             else:
                 context["label"] = self.label
 
-        composer_help_texts = self.composer.help_texts
-        if composer_help_texts and self.name in composer_help_texts:
-            context["help_text"] = composer_help_texts[self.name]
-        else:
-            context["help_text"] = self.help_text
+        if "help_text" not in context:
+            composer_help_texts = self.composer.help_texts
+            if composer_help_texts and self.name in composer_help_texts:
+                context["help_text"] = composer_help_texts[self.name]
+            else:
+                context["help_text"] = self.help_text
 
         return self.composer.build_widget_context(widget, context)
 
-    def as_widget(self, widget=None, attrs=None, only_initial=False):
+    def as_widget(self, widget=None, attrs=None, context=None, only_initial=False):
         widget = widget or self.widget
         if self.field.localize:
             widget.is_localized = True
@@ -71,7 +69,12 @@ class BoundField(_BoundField):
         if self.auto_id and "id" not in widget.attrs:
             attrs.setdefault("id", self.html_initial_id if only_initial else self.auto_id)
 
-        context = self.get_context(widget, attrs, only_initial=only_initial)
+        context = self.get_context(
+            widget,
+            attrs=attrs,
+            extra_context=context,
+            only_initial=only_initial
+        )
 
         return widget._render(
             template_name=self.get_template_name(widget),
