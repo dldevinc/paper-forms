@@ -1,6 +1,6 @@
 # paper-forms
 
-A form templating app for Django
+A Django app for form templating.
 
 [![PyPI](https://img.shields.io/pypi/v/paper-forms.svg)](https://pypi.org/project/paper-forms/)
 [![Build Status](https://github.com/dldevinc/paper-forms/actions/workflows/tests.yml/badge.svg)](https://github.com/dldevinc/paper-forms)
@@ -56,8 +56,8 @@ Now, let’s render our form by using the `{% field %}` template tag:
 {% load paper_forms %}
 
 <form method="post">
-    {% field form.name %}
-    {% field form.age %}
+  {% field form.name %}
+  {% field form.age %}
 </form>
 ```
 
@@ -65,8 +65,8 @@ This is exactly the html that you would get:
 
 ```html
 <form method="post">
-    <input type="text" name="name" id="id_name" required />
-    <input type="number" name="age" id="id_age" required />
+  <input type="text" name="name" id="id_name" required />
+  <input type="number" name="age" id="id_age" required />
 </form>
 ```
 
@@ -78,14 +78,16 @@ Now, let's add some customization.
 
 ## Customization
 
+### Adding or replacing attributes
+
 The simplest thing you can do is to add (or replace) attributes to the widget:
 
 ```html
 {% load paper_forms %}
 
 <form method="post">
-    {% field form.name placeholder="Enter your name" %}
-    {% field form.age placeholder="Enter your age" title=form.age.label %}
+  {% field form.name placeholder="Enter your name" %}
+  {% field form.age placeholder="Enter your age" title=form.age.label %}
 </form>
 ```
 
@@ -93,8 +95,8 @@ Result:
 
 ```html
 <form method="post">
-    <input type="text" name="name" id="id_name" placeholder="Enter your name" required />
-    <input type="number" name="age" title="Age" required placeholder="Enter your age" id="id_age" />
+  <input type="text" name="name" id="id_name" placeholder="Enter your name" required />
+  <input type="number" name="age" title="Age" required placeholder="Enter your age" id="id_age" />
 </form>
 ```
 
@@ -182,6 +184,71 @@ Template example:
     <small>{{ help_text }}</small>
     {% endif %}
 </div>
+```
+
+### Adding variables to form field template
+
+When using the `paper-forms` library, you can add variables to the form field template 
+by using the "_" prefix in the template tag parameters. Unlike attributes that are passed 
+to the widget, these parameters become part of the template context for the form field.
+
+Example:
+
+```html
+{% load paper_forms %}
+
+<form method="post">
+  {% field form.name placeholder="Enter your name" %}
+  {% field form.age placeholder="Enter your age" _style="light" %}
+</form>
+```
+
+In this example, the `placeholder` attribute is a widget attribute, while the `style` 
+is a template context variable. Parameters with a leading underscore, such as `_style`, 
+are treated as template context variables and are not passed as widget attributes.
+
+In addition to the template tag parameters, you can customize the context of the form 
+field using the `build_widget_context` method in your `Composer` class. This method allows 
+you to modify the context before it is used in the form field template.
+
+Here's an example `Composer` class with the `build_widget_context` method:
+
+```python
+from paper_forms.composers.base import BaseComposer
+
+
+class MyComposer(BaseComposer):
+    def build_widget_context(self, widget, context):
+        # Add a new variable to the context of all form fields
+        context["style"] = "light"
+        return context
+```
+
+Now, when using this `Composer` in a form, the `style` variable will be available 
+in the context for all form fields:
+
+```python
+from django import forms
+
+
+class ExampleForm(forms.Form):
+    name = forms.CharField()
+    age = forms.NumberInput()
+
+    class Composer(MyComposer):
+        pass
+```
+
+**Special cases**: The `label` and `help_text` parameters are treated as special cases. 
+They are also considered as context variables and are not passed as widget attributes. 
+For example:
+```html
+{% load paper_forms %}
+
+<form method="post">
+  {% field form.name placeholder="Enter your name" label="Name" %}
+  {% field form.age placeholder="Enter your age" label="Age" help_text="Enter your age in years" %}
+</form>
 ```
 
 ### Create your own `Composer` subclass for web frameworks

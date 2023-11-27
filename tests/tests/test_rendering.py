@@ -111,6 +111,26 @@ class TestDjangoTemplates:
             '<input type="text" name="name" id="id_name" data-field-title="Enter your name">'
         }
 
+    def test_template_variables(self):
+        template = self.engine.from_string(
+            '{% load paper_forms %}'
+            '{% field form.name _style="light" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response in {
+            '<div class="field--light">\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '  \n'
+            '</div>'
+        }
+
     def test_custom_form_template(self):
         template = self.engine.from_string(
             '{% load paper_forms %}'
@@ -127,6 +147,7 @@ class TestDjangoTemplates:
             '  <input type="text" name="name" id="id_name">\n'
             '\n'
             '\n'
+            '  \n'
             '</div>'
         )
 
@@ -146,6 +167,27 @@ class TestDjangoTemplates:
             '  <input type="text" name="name" id="id_name">\n'
             '\n'
             '\n'
+            '  \n'
+            '</div>'
+        )
+
+    def test_help_text_attribute(self):
+        template = self.engine.from_string(
+            '{% load paper_forms %}'
+            '{% field form.name help_text="Type your first name" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '  <small>Type your first name</small>\n'
             '</div>'
         )
 
@@ -195,7 +237,6 @@ class TestJinja2:
     @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
     def test_additional_attributes(self, engine_name):
         engine = engines[engine_name]
-
         template = engine.from_string(
             '{% field form.name, placeholder="Enter your name" %}'
         )
@@ -212,7 +253,6 @@ class TestJinja2:
     @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
     def test_data_attributes(self, engine_name):
         engine = engines[engine_name]
-
         template = engine.from_string(
             '{% field form.name, data__field__title="Enter your name" %}'
         )
@@ -227,9 +267,29 @@ class TestJinja2:
         }
 
     @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
+    def test_template_variables(self, engine_name):
+        engine = engines[engine_name]
+        template = engine.from_string(
+            '{% field form.name, _style="light" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response in {
+            '<div class="field--light">\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '  \n'
+            '</div>'
+        }
+
+    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
     def test_custom_form_template(self, engine_name):
         engine = engines[engine_name]
-
         template = engine.from_string(
             '{% field form.name %}'
         )
@@ -244,13 +304,13 @@ class TestJinja2:
             '  <input type="text" name="name" id="id_name">\n'
             '\n'
             '\n'
+            '  \n'
             '</div>'
         )
 
     @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
     def test_label_attribute(self, engine_name):
         engine = engines[engine_name]
-
         template = engine.from_string(
             '{% field form.name, label="Your name" %}'
         )
@@ -265,5 +325,27 @@ class TestJinja2:
             '  <input type="text" name="name" id="id_name">\n'
             '\n'
             '\n'
+            '  \n'
+            '</div>'
+        )
+
+    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
+    def test_help_text_attribute(self, engine_name):
+        engine = engines[engine_name]
+        template = engine.from_string(
+            '{% field form.name, help_text="Type your first name" %}'
+        )
+        response = template.render({
+            "form": ExtendedForm()
+        })
+
+        response = re.sub(r'\s/>', '>', response)
+        assert response == (
+            '<div>\n'
+            '  <label for="id_name">Name</label>\n'
+            '  <input type="text" name="name" id="id_name">\n'
+            '\n'
+            '\n'
+            '  <small>Type your first name</small>\n'
             '</div>'
         )
