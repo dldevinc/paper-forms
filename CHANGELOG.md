@@ -1,5 +1,18 @@
 # Change Log
 
+## [0.3.0](https://github.com/dldevinc/paper-forms/tree/v0.3.0) - 2023-11-27
+
+### ⚠ BREAKING CHANGES
+
+-   Introducing a new feature to customize form field contexts using the "_" prefix 
+    for template tag parameters. Now, parameters prefixed with "_" are treated as template 
+    context variables rather than widget attributes. Example:
+    ```html
+    {% field "name" placeholder="Name" _style="light" %}
+    ```
+    In this example, `placeholder` signifies a widget attribute, while `style` denotes 
+    a template context variable.
+
 ## [0.2.2](https://github.com/dldevinc/paper-forms/tree/v0.2.2) - 2023-10-11
 
 ### Features
