@@ -13,6 +13,10 @@
     In this example, `placeholder` signifies a widget attribute, while `style` denotes 
     a template context variable.
 
+### Features
+
+-   Add tests against Python 3.12.
+
 ## [0.2.2](https://github.com/dldevinc/paper-forms/tree/v0.2.2) - 2023-10-11
 
 ### Features
