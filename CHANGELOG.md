@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.4.0](https://github.com/dldevinc/paper-forms/tree/v0.4.0) - 2024-01-01
+
+### ⚠ BREAKING CHANGES
+
+-   The library was completely rewritten.
+-   Dropped support for Python below 3.9.
+-   Dropped support for Django below 3.2.
+-   Add tests against Django 5.0.
+
 ## [0.3.0](https://github.com/dldevinc/paper-forms/tree/v0.3.0) - 2023-11-27
 
 ### ⚠ BREAKING CHANGES

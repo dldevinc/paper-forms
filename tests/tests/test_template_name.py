@@ -65,7 +65,10 @@ class CustomForm(forms.Form):
 def test_default_template_name():
     # Шаблон по умолчанию
     simple_bf = get_bound_field(SimpleForm(), "name")
-    assert simple_bf.get_template_name(simple_bf.widget) == "django/forms/widgets/text.html"
+    assert simple_bf.composer.get_template_name(
+        simple_bf.name,
+        simple_bf.widget
+    ) == "django/forms/widgets/text.html"
 
 
 def test_default_composer_template_name():
@@ -73,39 +76,69 @@ def test_default_composer_template_name():
     form = BootstrapForm()
 
     input_bf = get_bound_field(form, "name")
-    assert input_bf.get_template_name(input_bf.widget) == "paper_forms/bootstrap4/input.html"
+    assert input_bf.composer.get_template_name(
+        input_bf.name,
+        input_bf.widget
+    ) == "paper_forms/bootstrap4/input.html"
 
     checkbox_bf = get_bound_field(form, "over_18")
-    assert checkbox_bf.get_template_name(checkbox_bf.widget) == "paper_forms/bootstrap4/checkbox.html"
+    assert checkbox_bf.composer.get_template_name(
+        checkbox_bf.name,
+        checkbox_bf.widget
+    ) == "paper_forms/bootstrap4/checkbox.html"
 
     select_bf = get_bound_field(form, "gender")
-    assert select_bf.get_template_name(select_bf.widget) == "paper_forms/bootstrap4/radio_select.html"
+    assert select_bf.composer.get_template_name(
+        select_bf.name,
+        select_bf.widget
+    ) == "paper_forms/bootstrap4/radio_select.html"
 
     checkbox_select_bf = get_bound_field(form, "day")
-    assert checkbox_select_bf.get_template_name(checkbox_select_bf.widget) == "paper_forms/bootstrap4/checkbox_select.html"
+    assert checkbox_select_bf.composer.get_template_name(
+        checkbox_select_bf.name,
+        checkbox_select_bf.widget
+    ) == "paper_forms/bootstrap4/checkbox_select.html"
 
     file_bf = get_bound_field(form, "photo")
-    assert file_bf.get_template_name(file_bf.widget) == "paper_forms/bootstrap4/file.html"
+    assert file_bf.composer.get_template_name(
+        file_bf.name,
+        file_bf.widget
+    ) == "paper_forms/bootstrap4/file.html"
 
 
 def test_composer_template_names():
     # Шаблон, переопределенный в поле `template_names`, имеет наивысший приоритет
     form = CustomForm()
     bf = get_bound_field(form, "name")
-    assert bf.get_template_name(bf.widget) == "path/to/widget.html"
+    assert bf.composer.get_template_name(
+        bf.name,
+        bf.widget
+    ) == "path/to/widget.html"
 
     # ... даже для переопределенного виджета
-    paasword_bf = get_bound_field(form, "password")
-    assert paasword_bf.get_template_name(paasword_bf.widget) == "path/to/password.html"
+    password_bf = get_bound_field(form, "password")
+    assert password_bf.composer.get_template_name(
+        password_bf.name,
+        password_bf.widget
+    ) == "path/to/password.html"
 
 
 def test_hidden_widget_template_name():
     # Скрытые виджеты всегда рендерятся своим стандартным шаблоном
     simple_bf = get_bound_field(SimpleForm(), "honeypot")
-    assert simple_bf.get_template_name(simple_bf.widget) == "django/forms/widgets/hidden.html"
+    assert simple_bf.composer.get_template_name(
+        simple_bf.name,
+        simple_bf.widget
+    ) == "django/forms/widgets/hidden.html"
 
     bootstrap_bf = get_bound_field(BootstrapForm(), "honeypot")
-    assert bootstrap_bf.get_template_name(bootstrap_bf.widget) == "django/forms/widgets/hidden.html"
+    assert bootstrap_bf.composer.get_template_name(
+        bootstrap_bf.name,
+        bootstrap_bf.widget
+    ) == "django/forms/widgets/hidden.html"
 
     custom_bf = get_bound_field(CustomForm(), "honeypot")
-    assert custom_bf.get_template_name(custom_bf.widget) == "django/forms/widgets/hidden.html"
+    assert custom_bf.composer.get_template_name(
+        custom_bf.name,
+        custom_bf.widget
+    ) == "django/forms/widgets/hidden.html"

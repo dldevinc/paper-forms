@@ -8,7 +8,7 @@ from paper_forms.composers.base import BaseComposer
 
 
 class MyComposer(BaseComposer):
-    def get_default_template_name(self, widget):
+    def get_default_template_name(self, name, widget):
         return "fields/field.html"
 
 

@@ -1,102 +1,110 @@
-import copy
 import datetime
+from typing import Any
 
 import django
 from django.forms.boundfield import BoundField as _BoundField
 from django.forms.boundfield import BoundWidget
+from django.forms.widgets import Widget
 from django.utils.functional import cached_property
+
+from .composers.base import BaseComposer
 
 
 class BoundField(_BoundField):
     def __init__(self, form, field, name, composer):
         super().__init__(form, field, name)
-        self.composer = composer
+        self.composer = composer    # type: BaseComposer
 
-    def get_template_name(self, widget):
-        if widget.is_hidden:
-            # default template
-            return widget.template_name
-
-        composer_template_names = self.composer.template_names
-        if composer_template_names and self.name in composer_template_names:
-            return composer_template_names[self.name]
-
-        return self.composer.get_default_template_name(widget)
-
-    def get_widget_attrs(self, widget, attrs=None):
-        attrs = attrs or {}
-        attrs = self.build_widget_attrs(attrs, widget)
-
-        composer_css_classes = attrs.pop("class", self.composer.get_default_css_classes(widget))
-        composer_css_classes = self.css_classes(composer_css_classes)
-        if composer_css_classes:
-            attrs["class"] = composer_css_classes
-
-        return self.composer.build_widget_attrs(widget, attrs)
-
-    def get_context(self, widget, attrs=None, extra_context=None, only_initial=False):
-        context = widget.get_context(
-            name=self.html_initial_name if only_initial else self.html_name,
-            value=self.value(),
-            attrs=attrs
-        )
-
-        context["errors"] = self.errors
-        context.update(extra_context or {})
-
-        if "label" not in context:
-            composer_labels = self.composer.labels
-            if composer_labels and self.name in composer_labels:
-                context["label"] = composer_labels[self.name]
-            else:
-                context["label"] = self.label
-
-        if "help_text" not in context:
-            composer_help_texts = self.composer.help_texts
-            if composer_help_texts and self.name in composer_help_texts:
-                context["help_text"] = composer_help_texts[self.name]
-            else:
-                context["help_text"] = self.help_text
-
-        return self.composer.build_widget_context(widget, context)
-
-    def as_widget(self, widget=None, attrs=None, context=None, only_initial=False):
+    def as_widget(
+        self,
+        widget: Widget = None,
+        attrs: dict = None,
+        only_initial: bool = False,
+        extra_context: dict = None
+    ):
         widget = widget or self.widget
         if self.field.localize:
             widget.is_localized = True
 
-        attrs = self.get_widget_attrs(widget, attrs)
+        attrs = attrs or {}
+        attrs = self.build_widget_attrs(widget, attrs)
         if self.auto_id and "id" not in widget.attrs:
             attrs.setdefault("id", self.html_initial_id if only_initial else self.auto_id)
 
+        if django.VERSION >= (4, 2) and only_initial and self.html_initial_name in self.form.data:
+            # Propagate the hidden initial value.
+            value = self.form._widget_data_value(
+                self.field.hidden_widget(),
+                self.html_initial_name,
+            )
+        else:
+            value = self.value()
+
         context = self.get_context(
             widget,
+            name=self.html_initial_name if only_initial else self.html_name,
+            value=value,
             attrs=attrs,
-            extra_context=context,
-            only_initial=only_initial
+            extra_context=extra_context,
         )
 
         return widget._render(
-            template_name=self.get_template_name(widget),
-            context=context,
+            template_name=self.composer.get_template_name(self.name, widget),
+            context=self.composer.build_context(self.name, context, widget),
             renderer=self.composer.get_renderer(self.form),
         )
 
-    @cached_property
-    def widget(self):
-        composer_widgets = self.composer.widgets
-        if composer_widgets and self.name in composer_widgets:
-            widget = composer_widgets[self.name]
-            if isinstance(widget, type):
-                widget = widget()
-            else:
-                widget = copy.deepcopy(widget)
-            return widget
+    def build_widget_attrs(self, widget: Widget, attrs: dict = None) -> dict:
+        attrs = attrs or {}
+        attrs = super().build_widget_attrs(attrs, widget)
+        return self.composer.build_widget_attrs(self.name, attrs, widget)
 
-        return self.field.widget
+    def get_context(
+        self,
+        widget: Widget,
+        name: str,
+        value: Any,
+        attrs: dict = None,
+        extra_context: dict = None
+    ) -> dict:
+        widget_context = widget.get_context(
+            name=name,
+            value=value,
+            attrs=attrs
+        )
+        extra_context = extra_context or {}
+        context = dict(widget_context, **extra_context)
+
+        if "label" not in context:
+            label = self.composer.get_label(self.name, widget)
+            if label is None:
+                label = self.label
+            context["label"] = label
+
+        if "help_text" not in context:
+            help_text = self.composer.get_help_text(self.name, widget)
+            if help_text is None:
+                help_text = self.help_text
+            context["help_text"] = help_text
+
+        if "css_classes" not in context:
+            extra_css_classes = self.composer.get_css_classes(self.name, widget)
+            context["css_classes"] = self.css_classes(extra_css_classes)
+
+        context["errors"] = self.errors
+
+        return context
 
     @cached_property
-    def subwidgets(self):
+    def widget(self) -> Widget:
+        widget = self.composer.get_widget(self.name)
+        if widget is None:
+            widget = self.field.widget
+
+        return widget
+
+    @cached_property
+    def subwidgets(self) -> list[BoundWidget]:
         # Use self.widget instead of self.field.widget
         id_ = self.widget.attrs.get("id") or self.auto_id
         attrs = {"id": id_} if id_ else {}
@@ -109,7 +117,7 @@ class BoundField(_BoundField):
         ]
 
     @property
-    def data(self):
+    def data(self) -> Any:
         # Use self.widget instead of self.field.widget
         if django.VERSION >= (4, 0):
             return self.form._widget_data_value(self.widget, self.html_name)
@@ -119,24 +127,26 @@ class BoundField(_BoundField):
             )
 
     @property
-    def is_hidden(self):
+    def is_hidden(self) -> bool:
         # Use self.widget instead of self.field.widget
         return self.widget.is_hidden
 
     @property
-    def id_for_label(self):
+    def id_for_label(self) -> str:
         # Use self.widget instead of self.field.widget
         id_ = self.widget.attrs.get("id") or self.auto_id
         return self.widget.id_for_label(id_)
 
     @cached_property
-    def initial(self):
+    def initial(self) -> Any:
         # Use self.widget instead of self.field.widget
-        data = self.form.get_initial_for_field(self.field, self.name)
-        if django.VERSION < (4, 0):
+        if django.VERSION >= (4, 0):
+            return self.form.get_initial_for_field(self.field, self.name)
+        else:
+            data = self.form.get_initial_for_field(self.field, self.name)
             # If this is an auto-generated default date, nix the microseconds for
             # standardized handling. See #22502.
             if (isinstance(data, (datetime.datetime, datetime.time)) and
                     not self.widget.supports_microseconds):
                 data = data.replace(microsecond=0)
-        return data
+            return data

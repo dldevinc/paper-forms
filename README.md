@@ -8,8 +8,8 @@ A Django app for form templating.
 
 ## Compatibility
 
--   `python` >= 3.6
--   `django` >= 2.2
+-   `python` >= 3.9
+-   `django` >= 3.2
 
 ## Installation
 
@@ -157,14 +157,20 @@ fields have the highest priority.**
 
 There is also the `template_names` attribute which allows you to
 override a form field templates. Form field template context _is a
-widget context_, extended with `label`, `errors` and `help_text`
-values. You can add your own data by overriding the
-`build_widget_context` method in your Composer class.
+widget context_, extended with `label`, `errors`, `help_text` and 
+`css_classes` values.
+
+You can also use specialized methods such as `get_widget()`, 
+`get_template_name()`, `get_label()`, `get_help_text()`, 
+`get_css_classes()`.
+
+You can add your own data by overriding the `build_context()` 
+method in your Composer class.
 
 Template example:
 
 ```html
-<div class="form-field">
+<div class="form-field {{ css_classes }}">
     <label for="{{ widget.attrs.id }}">{{ label }}</label>
 
     <!-- include default widget template -->
@@ -208,17 +214,19 @@ is a template context variable. Parameters with a leading underscore, such as `_
 are treated as template context variables and are not passed as widget attributes.
 
 In addition to the template tag parameters, you can customize the context of the form 
-field using the `build_widget_context` method in your `Composer` class. This method allows 
+field using the `build_context()` method in your `Composer` class. This method allows 
 you to modify the context before it is used in the form field template.
 
-Here's an example `Composer` class with the `build_widget_context` method:
+Here's an example `Composer` class with the `build_context()` method:
 
 ```python
 from paper_forms.composers.base import BaseComposer
 
 
 class MyComposer(BaseComposer):
-    def build_widget_context(self, widget, context):
+    def build_context(self, name, context, widget):
+        context = super().build_context(name, context, widget)
+
         # Add a new variable to the context of all form fields
         context["style"] = "light"
         return context
@@ -239,9 +247,10 @@ class ExampleForm(forms.Form):
         pass
 ```
 
-**Special cases**: The `label` and `help_text` parameters are treated as special cases. 
-They are also considered as context variables and are not passed as widget attributes. 
-For example:
+**Special cases**: The `label`, `help_text` and `css_classes` parameters are treated 
+as special cases. They are interpreted as context variables, even though their names 
+do not start with an underscore. For example:
+
 ```html
 {% load paper_forms %}
 
@@ -261,7 +270,7 @@ from paper_forms.composers.base import BaseComposer
 
 
 class Bootstrap4(BaseComposer):
-    def get_default_template_name(self, widget):
+    def get_default_template_name(self, name, widget):
         # Overrides the widget template, but has a lower priority
         # than the 'template_names' attribute of the Composer class.
         if isinstance(widget, widgets.CheckboxInput):
@@ -269,13 +278,19 @@ class Bootstrap4(BaseComposer):
         else:
             return "paper_forms/bootstrap4/input.html"
 
-    def get_default_css_classes(self, widget):
+    def build_widget_attrs(self, name, attrs, widget):
+        attrs = super().build_widget_attrs(name, attrs, widget)
+        classes = set(attrs.pop("class", "").split())
+        
         # Adds default CSS classes that can be overridden
         # in the {% field %} template tag.
         if isinstance(widget, widgets.CheckboxInput):
-            return "form-check-input"
+            classes.add("form-check-input")
         else:
-            return "form-control"
+            classes.add("form-control")
+
+        attrs["class"] = " ".join(classes)
+        return attrs
 ```
 
 ## Settings
