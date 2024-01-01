@@ -8,8 +8,8 @@ A Django app for form templating.
 
 ## Compatibility
 
--   `python` >= 3.6
--   `django` >= 2.2
+-   `python` >= 3.9
+-   `django` >= 3.2
 
 ## Installation
 
