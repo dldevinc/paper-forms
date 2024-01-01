@@ -1,4 +1,4 @@
-<div class="form-group{% if widget.required %} required{% endif %}">
+<div class="form-group {{ css_classes }}">
   <label for="{{ widget.attrs.id }}" class="mb-1">{{ label }}</label>
 
   {% include widget.template_name %}

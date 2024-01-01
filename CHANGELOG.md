@@ -4,6 +4,7 @@
 
 ### ⚠ BREAKING CHANGES
 
+-   The library was completely rewritten.
 -   Dropped support for Python below 3.9.
 -   Dropped support for Django below 3.2.
 -   Add tests against Django 5.0.

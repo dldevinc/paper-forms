@@ -53,7 +53,7 @@ def test_empty_css_classes():
     # Форма без composer'а не добавляет никаких классов
     form = SimpleForm({})
     bf = get_bound_field(form, "name")
-    assert "class" not in bf.get_widget_attrs(bf.widget)
+    assert "class" not in bf.build_widget_attrs(bf.widget)
 
 
 def test_default_composer_css_classes():
@@ -61,30 +61,30 @@ def test_default_composer_css_classes():
     form = BootstrapForm({})
 
     input_bf = get_bound_field(form, "name")
-    assert input_bf.get_widget_attrs(input_bf.widget)["class"] == "form-control"
+    assert input_bf.build_widget_attrs(input_bf.widget)["class"] == "form-control"
 
     checkbox_bf = get_bound_field(form, "over_18")
-    assert checkbox_bf.get_widget_attrs(checkbox_bf.widget)["class"] == "form-check-input"
+    assert checkbox_bf.build_widget_attrs(checkbox_bf.widget)["class"] == "form-check-input"
 
     select_bf = get_bound_field(form, "gender")
-    assert select_bf.get_widget_attrs(select_bf.widget)["class"] == "custom-select"
+    assert select_bf.build_widget_attrs(select_bf.widget)["class"] == "custom-select"
 
     checkbox_select_bf = get_bound_field(form, "day")
-    assert checkbox_select_bf.get_widget_attrs(checkbox_select_bf.widget)["class"] == "form-check-input"
+    assert checkbox_select_bf.build_widget_attrs(checkbox_select_bf.widget)["class"] == "form-check-input"
 
     file_bf = get_bound_field(form, "photo")
-    assert file_bf.get_widget_attrs(file_bf.widget)["class"] == "custom-file-input"
+    assert file_bf.build_widget_attrs(file_bf.widget)["class"] == "custom-file-input"
 
 
 def test_explicit_css_classes():
-    # Если в шаблонном тэге указаны CSS-классы, то они используются вместо
-    # классов, добавляемых в методе `get_default_css_classes` composer'a.
+    # Если в шаблонном тэге указаны CSS-классы, то они добавляются к тем,
+    # что устанавлисаются в методе `build_widget_attrs` composer'a.
     form = BootstrapForm({})
     bf = get_bound_field(form, "photo")
-    attrs = bf.get_widget_attrs(bf.widget, {
+    attrs = bf.build_widget_attrs(bf.widget, {
         "class": "demo-class"
     })
-    assert attrs["class"] == "demo-class"
+    assert set(attrs["class"].split(" ")) == {"demo-class", "custom-file-input"}
 
 
 def test_composer_widget_css_classes():
@@ -92,4 +92,5 @@ def test_composer_widget_css_classes():
     # В данном случае, это виджет, указанный в поле `widgets`.
     form = CustomForm({})
     bf = get_bound_field(form, "gender")
-    assert bf.get_widget_attrs(bf.widget)["class"] == "form-check-input"
+    attrs = bf.build_widget_attrs(bf.widget)
+    assert attrs["class"] == "form-check-input"

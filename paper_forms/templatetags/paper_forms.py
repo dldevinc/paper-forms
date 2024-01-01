@@ -34,13 +34,20 @@ def _tag(form_field, **attrs):
     if help_text is not None:
         context["help_text"] = help_text
 
+    css_classes = widget_attrs.pop("css_classes", None)
+    if css_classes is not None:
+        context["css_classes"] = css_classes
+
     # Workaround for attributes with dashes
     widget_attrs = {
         key.replace("__", "-"): value
         for key, value in widget_attrs.items()
     }
 
-    return bound_field.as_widget(attrs=widget_attrs, context=context)
+    return bound_field.as_widget(
+        attrs=widget_attrs,
+        extra_context=context
+    )
 
 
 @register.simple_tag

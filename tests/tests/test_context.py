@@ -27,7 +27,7 @@ class TestSimpleFormContext:
             "name": "Joe"
         })
         bf = get_bound_field(form, "name")
-        self.context = bf.get_context(bf.widget)
+        self.context = bf.get_context(bf.widget, bf.html_name, bf.value())
 
     def test_errors(self):
         assert "errors" in self.context
@@ -52,7 +52,7 @@ class TestBootstrapFormContext:
             "name": "Joe"
         })
         bf = get_bound_field(form, "name")
-        self.context = bf.get_context(bf.widget)
+        self.context = bf.get_context(bf.widget, bf.html_name, bf.value())
 
     def test_label(self):
         assert "label" in self.context

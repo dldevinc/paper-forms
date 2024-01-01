@@ -5,6 +5,7 @@ from paper_forms.composers.bootstrap4 import Bootstrap4
 
 class ExampleForm(forms.Form):
     use_required_attribute = False
+    required_css_class = "required"
     error_css_class = "is-invalid"
 
     char = forms.CharField()
