@@ -7,13 +7,15 @@ from django.forms.boundfield import BoundWidget
 from django.forms.widgets import Widget
 from django.utils.functional import cached_property
 
-from .composers.base import BaseComposer
+from .composer import BaseComposer
+
+__all__ = ["BoundField"]
 
 
 class BoundField(_BoundField):
     def __init__(self, form, field, name, composer):
         super().__init__(form, field, name)
-        self.composer = composer    # type: BaseComposer
+        self.composer: BaseComposer = composer
 
     def as_widget(
         self,
@@ -55,6 +57,7 @@ class BoundField(_BoundField):
         )
 
     def build_widget_attrs(self, widget: Widget, attrs: dict = None) -> dict:
+        # This method does not have access to the internal attributes of the widget.
         attrs = attrs or {}
         attrs = super().build_widget_attrs(attrs, widget)
         return self.composer.build_widget_attrs(self.name, attrs, widget)
@@ -98,10 +101,7 @@ class BoundField(_BoundField):
     @cached_property
     def widget(self) -> Widget:
         widget = self.composer.get_widget(self.name)
-        if widget is None:
-            widget = self.field.widget
-
-        return widget
+        return widget if widget is not None else self.field.widget
 
     @cached_property
     def subwidgets(self) -> list[BoundWidget]:

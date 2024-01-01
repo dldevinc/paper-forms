@@ -1,20 +1,20 @@
 from django.forms import Widget, widgets
 
-from .base import BaseComposer
+from paper_forms.composer import BaseComposer
 
 
 class Bootstrap4(BaseComposer):
     def get_default_template_name(self, name: str, widget: Widget) -> str:
         if isinstance(widget, widgets.CheckboxInput):
-            return "paper_forms/bootstrap4/checkbox.html"
+            return "bootstrap4/checkbox.html"
         elif isinstance(widget, widgets.CheckboxSelectMultiple):
-            return "paper_forms/bootstrap4/checkbox_select.html"
+            return "bootstrap4/checkbox_select.html"
         elif isinstance(widget, widgets.RadioSelect):
-            return "paper_forms/bootstrap4/radio_select.html"
+            return "bootstrap4/radio_select.html"
         elif isinstance(widget, widgets.FileInput):
-            return "paper_forms/bootstrap4/file.html"
+            return "bootstrap4/file.html"
         else:
-            return "paper_forms/bootstrap4/input.html"
+            return "bootstrap4/input.html"
 
     def build_widget_attrs(self, name: str, attrs: dict, widget: Widget) -> dict:
         attrs = super().build_widget_attrs(name, attrs, widget)

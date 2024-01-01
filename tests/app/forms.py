@@ -117,9 +117,9 @@ class ExampleForm(forms.Form):
 
     class Composer(Bootstrap4):
         template_names = {
-            "custom_checkbox": "paper_forms/bootstrap4/custom_checkbox.html",
-            "custom_checkbox_multiple": "paper_forms/bootstrap4/custom_checkbox_select.html",
-            "custom_radio": "paper_forms/bootstrap4/custom_radio_select.html",
+            "custom_checkbox": "bootstrap4/custom_checkbox.html",
+            "custom_checkbox_multiple": "bootstrap4/custom_checkbox_select.html",
+            "custom_radio": "bootstrap4/custom_radio_select.html",
         }
         labels = {
             "checkbox": "I accept the Terms and Conditions",

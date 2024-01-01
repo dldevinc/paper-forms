@@ -126,7 +126,7 @@ Example:
 
 ```python
 from django import forms
-from paper_forms.composers.base import BaseComposer
+from paper_forms.composer import BaseComposer
 
 
 class ExampleForm(forms.Form):
@@ -220,7 +220,7 @@ you to modify the context before it is used in the form field template.
 Here's an example `Composer` class with the `build_context()` method:
 
 ```python
-from paper_forms.composers.base import BaseComposer
+from paper_forms.composer import BaseComposer
 
 
 class MyComposer(BaseComposer):
@@ -266,7 +266,7 @@ Example:
 
 ```python
 from django.forms import widgets
-from paper_forms.composers.base import BaseComposer
+from paper_forms.composer import BaseComposer
 
 
 class Bootstrap4(BaseComposer):
@@ -298,7 +298,7 @@ class Bootstrap4(BaseComposer):
 -   `PAPER_FORMS_DEFAULT_COMPOSER`<br>
     Default Composer class to be used for any Form that don’t specify
     a particular composer.<br>
-    Default: `paper_forms.composers.base.BaseComposer`
+    Default: `paper_forms.composer.BaseComposer`
 
 -   `PAPER_FORMS_DEFAULT_FORM_RENDERER`<br>
     The class that renders form widgets.<br>
@@ -366,7 +366,7 @@ Two steps are needed to get around this problem.
 
         ```python
         from django import forms
-        from paper_forms.composers.base import BaseComposer
+        from paper_forms.composer import BaseComposer
 
 
         class ExampleForm(forms.Form):

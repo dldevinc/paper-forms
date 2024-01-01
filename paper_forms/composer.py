@@ -6,7 +6,9 @@ from django.forms.renderers import BaseRenderer
 from django.forms.widgets import Widget
 from django.utils.module_loading import import_string
 
-from .. import conf
+from . import conf
+
+__all__ = ["BaseComposer"]
 
 
 class SingletonMeta(type):
@@ -45,6 +47,7 @@ class BaseComposer(metaclass=SingletonMeta):
                 return copy.deepcopy(widget)
 
     def get_template_name(self, name: str, widget: Widget) -> str:
+        # A hidden widgets should have a higher priority.
         if widget.is_hidden:
             return widget.template_name
 
@@ -68,10 +71,8 @@ class BaseComposer(metaclass=SingletonMeta):
         if self.css_classes and name in self.css_classes:
             return self.css_classes[name]
 
-    def build_widget_attrs(self, name: str, attrs: dict, widget: Widget) -> dict:
-        # Here you can edit the attributes before they get into the widget
+    def build_widget_attrs(self, name: str, attrs: Optional[dict], widget: Widget) -> dict:
         return attrs or {}
 
-    def build_context(self, name: str, context: dict, widget: Widget) -> dict:
-        # Here you can edit the context of the form field
-        return context
+    def build_context(self, name: str, context: Optional[dict], widget: Widget) -> dict:
+        return context or {}
