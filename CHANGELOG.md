@@ -5,6 +5,7 @@
 ### ⚠ BREAKING CHANGES
 
 -   `BaseComposer` is now available at the path `paper_forms.composer.BaseComposer`.
+-   The `Bootsrap4Composer` was removed.
 
 ## [0.4.0](https://github.com/dldevinc/paper-forms/tree/v0.4.0) - 2024-01-01
 
