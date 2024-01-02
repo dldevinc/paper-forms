@@ -57,9 +57,11 @@ class BoundField(_BoundField):
         )
 
     def build_widget_attrs(self, widget: Widget, attrs: dict = None) -> dict:
-        # This method does not have access to the internal attributes of the widget.
         attrs = attrs or {}
         attrs = super().build_widget_attrs(attrs, widget)
+
+        # Use the internal attributes of the widget.
+        attrs = widget.build_attrs(widget.attrs, attrs)
         return self.composer.build_widget_attrs(self.name, attrs, widget)
 
     def get_context(

@@ -49,7 +49,8 @@ class TestBuildWidgetAttrs:
         bf = get_boundfield(MyForm(), "name", BaseComposer())
         attrs = bf.build_widget_attrs(bf.widget)
         assert attrs == {
-            "required": True
+            "required": True,
+            "maxlength": "64"
         }
 
     def test_override(self):
@@ -74,16 +75,16 @@ class TestBuildWidgetAttrs:
         })
         assert attrs == {
             "required": True,
+            "maxlength": "64",
             "placeholder": "Your Name *",
         }
 
-    def test_internal_attributes_are_not_accessible(self):
+    def test_override_internal_attributes(self):
         class MyForm(Form):
             name = CharField(
                 max_length=64,
                 widget=TextInput(
                     attrs={
-                        # Composer does not have access to this.
                         "placeholder": "Your Name",
                     }
                 )
@@ -103,6 +104,8 @@ class TestBuildWidgetAttrs:
         attrs = bf.build_widget_attrs(bf.widget)
         assert attrs == {
             "required": True,
+            "maxlength": "64",
+            "placeholder": "Your Name *",
         }
 
 
