@@ -100,6 +100,30 @@ class BoundField(_BoundField):
 
         return context
 
+    def css_classes(self, extra_classes=None):
+        if hasattr(extra_classes, "split"):
+            extra_classes = extra_classes.split()
+
+        # Remove duplicates while maintaining the order.
+        seen = set()
+        extra_classes = [
+            class_name
+            for class_name in (extra_classes or [])
+            if class_name not in seen and not seen.add(class_name)
+        ]
+
+        if self.errors:
+            if self.composer.error_css_class:
+                extra_classes.append(self.composer.error_css_class)
+            elif hasattr(self.form, "error_css_class"):
+                extra_classes.append(self.form.error_css_class)
+        if self.field.required:
+            if self.composer.required_css_class:
+                extra_classes.append(self.composer.required_css_class)
+            elif hasattr(self.form, "required_css_class"):
+                extra_classes.append(self.form.required_css_class)
+        return " ".join(extra_classes)
+
     @cached_property
     def widget(self) -> Widget:
         widget = self.composer.get_widget(self.name)

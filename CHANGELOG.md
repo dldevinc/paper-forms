@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.5.1](https://github.com/dldevinc/paper-forms/tree/v0.5.1) - 2024-01-03
+
+-   Now you can set the `error_css_class` and `required_css_class` using Composer.
+
 ## [0.5.0](https://github.com/dldevinc/paper-forms/tree/v0.5.0) - 2024-01-02
 
 ### ⚠ BREAKING CHANGES
