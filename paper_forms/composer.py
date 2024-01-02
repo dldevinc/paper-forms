@@ -1,5 +1,5 @@
 import copy
-from typing import Any, Optional
+from typing import Any, Optional, ClassVar
 
 from django.forms import BaseForm
 from django.forms.renderers import BaseRenderer
@@ -23,11 +23,13 @@ class SingletonMeta(type):
 
 class BaseComposer(metaclass=SingletonMeta):
     renderer = None
-    widgets: dict[str, Any] = None
-    labels: dict[str, str] = None
-    help_texts: dict[str, str] = None
-    css_classes: dict[str, str] = None
-    template_names: dict[str, str] = None
+    error_css_class: ClassVar[str] = None
+    required_css_class: ClassVar[str] = None
+    widgets: ClassVar[dict[str, Any]] = None
+    labels: ClassVar[dict[str, str]] = None
+    help_texts: ClassVar[dict[str, str]] = None
+    css_classes: ClassVar[dict[str, str]] = None
+    template_names: ClassVar[dict[str, str]] = None
 
     def get_renderer(self, form: BaseForm) -> BaseRenderer:
         renderer = self.renderer or form.default_renderer or conf.DEFAULT_FORM_RENDERER

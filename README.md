@@ -133,6 +133,13 @@ class ExampleForm(forms.Form):
 Here, the `Composer` class provides labels and help text for the "name" and "age" fields, 
 offering clear instructions to users interacting with your forms.
 
+Additionally, developers can enhance the customization of the form's appearance 
+by utilizing the `error_css_class` and `required_css_class` attributes 
+within the `Composer` class. These attributes allow you to define specific CSS classes 
+for handling errors and indicating required fields, respectively. Notably, any values 
+set for these attributes in the `Composer` class take precedence over those specified 
+at the form level.
+
 ### Specifying Custom Template Names
 
 When using `paper-forms`, you have the flexibility to create custom templates for 

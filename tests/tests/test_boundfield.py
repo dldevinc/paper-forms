@@ -267,3 +267,41 @@ class TestGetContext:
             "css_classes": "",
             "errors": [],
         }
+
+
+class TestCssClasses:
+    def test_get_values_from_composer(self):
+        class MyForm(Form):
+            error_css_class = "This will be overriden"
+            required_css_class = "This will be overriden"
+
+            name = CharField(
+                max_length=64,
+            )
+
+        class Composer(BaseComposer):
+            error_css_class = "invalid"
+            required_css_class = "required"
+
+        # Bound form
+        form = MyForm({})
+
+        bf = get_boundfield(form, "name", Composer())
+        css_classes = bf.css_classes()
+        assert css_classes == "invalid required"
+
+    def test_get_values_from_form(self):
+        class MyForm(Form):
+            error_css_class = "invalid"
+            required_css_class = "required"
+
+            name = CharField(
+                max_length=64,
+            )
+
+        # Bound form
+        form = MyForm({})
+
+        bf = get_boundfield(form, "name", BaseComposer())
+        css_classes = bf.css_classes()
+        assert css_classes == "invalid required"
