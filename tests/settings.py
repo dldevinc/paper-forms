@@ -48,6 +48,7 @@ TEMPLATES = [
         ],
         "APP_DIRS": True,
         "OPTIONS": {
+            "builtins": ["paper_forms.templatetags.paper_forms"],
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",

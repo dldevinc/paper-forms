@@ -1,351 +1,147 @@
-import re
-
 import pytest
 from django import forms
+from django.core.validators import MinValueValidator
 from django.template import engines
 
-from paper_forms.composers.base import BaseComposer
+from paper_forms.composer import BaseComposer
 
 
-class MyComposer(BaseComposer):
-    def get_default_template_name(self, name, widget):
-        return "fields/field.html"
-
-
-class SimpleForm(forms.Form):
-    use_required_attribute = False
-
-    name = forms.CharField()
-    age = forms.IntegerField(
-        min_value=18
+class BookForm(forms.Form):
+    title = forms.CharField(
+        label="Title",
+        max_length=100
     )
-    birth = forms.DateField()
-    email = forms.EmailField()
-    photo = forms.ImageField()
-    url = forms.URLField()
-    color = forms.ChoiceField(
-        choices=(
-            ("r", "Red"),
-            ("g", "Green"),
-            ("b", "Blue"),
-        )
+    author = forms.CharField(
+        label="Author",
+        max_length=50
     )
-    terms = forms.BooleanField()
+    pages = forms.IntegerField(
+        label="Number of Pages",
+        validators=[MinValueValidator(1)]
+    )
 
-
-class ExtendedForm(SimpleForm):
-    class Composer(MyComposer):
-        pass
-
-
-class TestDjangoTemplates:
-    def setup_class(self):
-        self.engine = engines["django"]
-
-    def test_default_field_rendering(self):
-        # без настроек, шаблонный тэг {% field %} рендерит стандартные виджеты
-        default_template = self.engine.from_string(
-            '<form method="post">'
-            '{{ form.name }}'
-            '{{ form.age }}'
-            '{{ form.birth }}'
-            '{{ form.email }}'
-            '{{ form.photo }}'
-            '{{ form.url }}'
-            '{{ form.color }}'
-            '{{ form.terms }}'
-            '<button type="submit">Submit</button>'
-            '</form>'
-        )
-        default_response = default_template.render({
-            "form": SimpleForm()
-        })
-
-        paper_template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '<form method="post">'
-            '{% field form.name %}'
-            '{% field form.age %}'
-            '{% field form.birth %}'
-            '{% field form.email %}'
-            '{% field form.photo %}'
-            '{% field form.url %}'
-            '{% field form.color %}'
-            '{% field form.terms %}'
-            '<button type="submit">Submit</button>'
-            '</form>'
-        )
-        paper_response = paper_template.render({
-            "form": SimpleForm()
-        })
-
-        assert default_response == paper_response
-
-    def test_additional_attributes(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name placeholder="Enter your name" %}'
-        )
-        response = template.render({
-            "form": SimpleForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<input type="text" name="name" placeholder="Enter your name" id="id_name">',
-            '<input type="text" name="name" id="id_name" placeholder="Enter your name">'
+    class Composer(BaseComposer):
+        template_names = {
+            "author": "fields/field.html",
+            "pages": "fields/field.html",
         }
 
-    def test_data_attributes(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name data__field__title="Enter your name" %}'
+
+@pytest.mark.parametrize("engine_name", ["django"])
+class TestDjango:
+    def test_attribute(self, engine_name):
+        engine = engines[engine_name]
+
+        template = engine.from_string(
+            "{% field form.title placeholder=\"Book Title\" %}"
         )
-        response = template.render({
-            "form": SimpleForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<input type="text" name="name" data-field-title="Enter your name" id="id_name">',
-            '<input type="text" name="name" id="id_name" data-field-title="Enter your name">'
-        }
-
-    def test_template_variables(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name _style="light" %}'
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<input type="text" name="title" maxlength="100" placeholder="Book Title" '
+            'required id="id_title">'
         )
-        response = template.render({
-            "form": ExtendedForm()
-        })
 
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<div class="field--light">\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
-            '</div>'
-        }
+    def test_data_attribute(self, engine_name):
+        engine = engines[engine_name]
 
-    def test_custom_form_template(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name %}'
+        template = engine.from_string(
+            "{% field form.title data__field__id=\"42\" %}"
         )
-        response = template.render({
-            "form": ExtendedForm()
-        })
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<input type="text" name="title" maxlength="100" data-field-id="42" '
+            'required id="id_title">'
+        )
 
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
+    def test_context_variable(self, engine_name):
+        engine = engines[engine_name]
+
+        template = engine.from_string(
+            "{% field form.author _style=\"dark\" %}"
+        )
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<div class="field--dark">\n'
+            '  <label for="id_author">Author</label>\n'
+            '  <input type="text" name="author" maxlength="50" required id="id_author">\n\n\n'
             '</div>'
         )
 
-    def test_label_attribute(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name label="Your name" %}'
-        )
-        response = template.render({
-            "form": ExtendedForm()
-        })
+    def test_special_cases(self, engine_name):
+        engine = engines[engine_name]
 
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Your name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
-            '</div>'
+        template = engine.from_string(
+            "{% field form.pages label=\"Page count\" help_text=\"Enter page count\" css_classes=\"field--large\" %}"
         )
-
-    def test_help_text_attribute(self):
-        template = self.engine.from_string(
-            '{% load paper_forms %}'
-            '{% field form.name help_text="Type your first name" %}'
-        )
-        response = template.render({
-            "form": ExtendedForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  <small>Type your first name</small>\n'
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<div class="field--large">\n'
+            '  <label for="id_pages">Page count</label>\n'
+            '  <input type="number" name="pages" required id="id_pages">\n\n\n'
+            '  <small>Enter page count</small>\n'
             '</div>'
         )
 
 
+@pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
 class TestJinja2:
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_jinja2_default_field_rendering(self, engine_name):
+    def test_attribute(self, engine_name):
         engine = engines[engine_name]
 
-        # без настроек, шаблонный тэг {% field %} рендерит стандартные виджеты
-        default_template = engine.from_string(
-            '<form method="post">'
-            '{{ form.name }}'
-            '{{ form.age }}'
-            '{{ form.birth }}'
-            '{{ form.email }}'
-            '{{ form.photo }}'
-            '{{ form.url }}'
-            '{{ form.color }}'
-            '{{ form.terms }}'
-            '<button type="submit">Submit</button>'
-            '</form>'
-        )
-        default_response = default_template.render({
-            "form": SimpleForm()
-        })
-
-        paper_template = engine.from_string(
-            '<form method="post">'
-            '{% field form.name %}'
-            '{% field form.age %}'
-            '{% field form.birth %}'
-            '{% field form.email %}'
-            '{% field form.photo %}'
-            '{% field form.url %}'
-            '{% field form.color %}'
-            '{% field form.terms %}'
-            '<button type="submit">Submit</button>'
-            '</form>'
-        )
-        paper_response = paper_template.render({
-            "form": SimpleForm()
-        })
-
-        assert default_response == paper_response
-
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_additional_attributes(self, engine_name):
-        engine = engines[engine_name]
         template = engine.from_string(
-            '{% field form.name, placeholder="Enter your name" %}'
+            "{% field form.title, placeholder=\"Book Title\" %}"
         )
-        response = template.render({
-            "form": SimpleForm()
-        })
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<input type="text" name="title" maxlength="100" placeholder="Book Title" '
+            'required id="id_title">'
+        )
 
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<input type="text" name="name" placeholder="Enter your name" id="id_name">',
-            '<input type="text" name="name" id="id_name" placeholder="Enter your name">'
-        }
-
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_data_attributes(self, engine_name):
+    def test_data_attribute(self, engine_name):
         engine = engines[engine_name]
+
         template = engine.from_string(
-            '{% field form.name, data__field__title="Enter your name" %}'
+            "{% field form.title, data__field__id=\"42\" %}"
         )
-        response = template.render({
-            "form": SimpleForm()
-        })
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<input type="text" name="title" maxlength="100" data-field-id="42" '
+            'required id="id_title">'
+        )
 
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<input type="text" name="name" data-field-title="Enter your name" id="id_name">',
-            '<input type="text" name="name" id="id_name" data-field-title="Enter your name">'
-        }
-
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_template_variables(self, engine_name):
+    def test_context_variable(self, engine_name):
         engine = engines[engine_name]
+
         template = engine.from_string(
-            '{% field form.name, _style="light" %}'
+            "{% field form.author, _style=\"dark\" %}"
         )
-        response = template.render({
-            "form": ExtendedForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response in {
-            '<div class="field--light">\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
-            '</div>'
-        }
-
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_custom_form_template(self, engine_name):
-        engine = engines[engine_name]
-        template = engine.from_string(
-            '{% field form.name %}'
-        )
-        response = template.render({
-            "form": ExtendedForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<div class="field--dark">\n'
+            '  <label for="id_author">Author</label>\n'
+            '  <input type="text" name="author" maxlength="50" required id="id_author">\n\n\n'
             '</div>'
         )
 
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_label_attribute(self, engine_name):
+    def test_special_cases(self, engine_name):
         engine = engines[engine_name]
+
         template = engine.from_string(
-            '{% field form.name, label="Your name" %}'
+            "{% field form.pages, label=\"Page count\", help_text=\"Enter page count\", css_classes=\"field--large\" %}"
         )
-        response = template.render({
-            "form": ExtendedForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Your name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  \n'
-            '</div>'
-        )
-
-    @pytest.mark.parametrize("engine_name", ["jinja2", "django-jinja"])
-    def test_help_text_attribute(self, engine_name):
-        engine = engines[engine_name]
-        template = engine.from_string(
-            '{% field form.name, help_text="Type your first name" %}'
-        )
-        response = template.render({
-            "form": ExtendedForm()
-        })
-
-        response = re.sub(r'\s/>', '>', response)
-        assert response == (
-            '<div>\n'
-            '  <label for="id_name">Name</label>\n'
-            '  <input type="text" name="name" id="id_name">\n'
-            '\n'
-            '\n'
-            '  <small>Type your first name</small>\n'
+        assert template.render({
+            "form": BookForm()
+        }) == (
+            '<div class="field--large">\n'
+            '  <label for="id_pages">Page count</label>\n'
+            '  <input type="number" name="pages" required id="id_pages">\n\n\n'
+            '  <small>Enter page count</small>\n'
             '</div>'
         )

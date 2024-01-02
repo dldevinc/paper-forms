@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.5.0](https://github.com/dldevinc/paper-forms/tree/v0.5.0) - 2024-01-02
+
+### ⚠ BREAKING CHANGES
+
+-   `BaseComposer` is now available at the path `paper_forms.composer.BaseComposer`.
+-   The `Bootsrap4Composer` was removed.
+
 ## [0.4.0](https://github.com/dldevinc/paper-forms/tree/v0.4.0) - 2024-01-01
 
 ### ⚠ BREAKING CHANGES

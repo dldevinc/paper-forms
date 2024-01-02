@@ -1,5 +1,5 @@
-<div{% if style %} class="field--{{ style }}"{% endif %}>
+<div class="{{ css_classes }}{% if style %}field--{{ style }}{% endif %}">
   <label for="{{ widget.attrs.id }}">{{ label }}</label>
-  {% include widget.template_name %}
-  {% if help_text %}<small>{{ help_text }}</small>{% endif %}
+  {% include widget.template_name %}{% if help_text %}
+  <small>{{ help_text }}</small>{% endif %}
 </div>
