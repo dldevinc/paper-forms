@@ -127,7 +127,15 @@ class BoundField(_BoundField):
     @cached_property
     def widget(self) -> Widget:
         widget = self.composer.get_widget(self.name)
-        return widget if widget is not None else self.field.widget
+        if widget is not None:
+            widget.is_localized = self.field.localize
+            widget.is_required = self.field.required
+            extra_attrs = self.field.widget_attrs(widget)
+            if extra_attrs:
+                widget.attrs.update(extra_attrs)
+            return widget
+
+        return self.field.widget
 
     @cached_property
     def subwidgets(self) -> list[BoundWidget]:

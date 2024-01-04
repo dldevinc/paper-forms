@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.5.2](https://github.com/dldevinc/paper-forms/tree/v0.5.2) - 2024-01-04
+
+### Features
+
+-   Now, widgets set through the `Composer.widgets` attribute receive the correct values 
+    for `is_required` and `is_localized`. Additionally, attributes added by the 
+    `forms.Field.build_attrs()` method are included.
+
 ## [0.5.1](https://github.com/dldevinc/paper-forms/tree/v0.5.1) - 2024-01-03
 
 -   Now you can set the `error_css_class` and `required_css_class` using Composer.

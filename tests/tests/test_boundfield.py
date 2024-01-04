@@ -1,10 +1,10 @@
-from django.forms import CharField, Form, TextInput, Textarea
+from django import forms
 
 from paper_forms.boundfield import BoundField
 from paper_forms.composer import BaseComposer
 
 
-def get_boundfield(form: Form, name: str, composer: BaseComposer):
+def get_boundfield(form: forms.Form, name: str, composer: BaseComposer):
     field = form.fields[name]
     return BoundField(
         form=form,
@@ -16,33 +16,53 @@ def get_boundfield(form: Form, name: str, composer: BaseComposer):
 
 class TestWidget:
     def test_default(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
         bf = get_boundfield(MyForm(), "name", BaseComposer())
-        assert isinstance(bf.widget, TextInput)
+        assert isinstance(bf.widget, forms.TextInput)
 
     def test_override(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
         class Composer(BaseComposer):
             widgets = {
-                "name": Textarea,
+                "name": forms.Textarea,
             }
 
         bf = get_boundfield(MyForm(), "name", Composer())
-        assert isinstance(bf.widget, Textarea)
+        assert isinstance(bf.widget, forms.Textarea)
+
+    def test_widget_attrs(self):
+        class MyForm(forms.Form):
+            name = forms.CharField(
+                required=True,
+                max_length=20
+            )
+
+        class Composer(BaseComposer):
+            widgets = {
+                "name": forms.TextInput(),
+            }
+
+        bf = get_boundfield(MyForm(), "name", Composer())
+        widget = bf.widget
+        assert widget.is_required is True
+        assert widget.is_localized is False
+        assert widget.attrs == {
+            "maxlength": "20"
+        }
 
 
 class TestBuildWidgetAttrs:
     def test_default(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
@@ -54,8 +74,8 @@ class TestBuildWidgetAttrs:
         }
 
     def test_override(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
@@ -80,10 +100,10 @@ class TestBuildWidgetAttrs:
         }
 
     def test_override_internal_attributes(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
-                widget=TextInput(
+                widget=forms.TextInput(
                     attrs={
                         "placeholder": "Your Name",
                     }
@@ -111,8 +131,8 @@ class TestBuildWidgetAttrs:
 
 class TestGetContext:
     def test_default(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
@@ -141,8 +161,8 @@ class TestGetContext:
         }
 
     def test_form_errors(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
             )
 
@@ -167,8 +187,8 @@ class TestGetContext:
         }
 
     def test_get_values_from_extra_context(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
                 label="This will be overriden",
                 help_text="This will be overriden",
@@ -208,8 +228,8 @@ class TestGetContext:
         }
 
     def test_get_values_from_composer(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
                 label="This will be overriden",
                 help_text="This will be overriden",
@@ -244,8 +264,8 @@ class TestGetContext:
         }
 
     def test_get_values_from_field(self):
-        class MyForm(Form):
-            name = CharField(
+        class MyForm(forms.Form):
+            name = forms.CharField(
                 max_length=64,
                 label="Your Name",
                 help_text="Enter your first name",
@@ -271,11 +291,11 @@ class TestGetContext:
 
 class TestCssClasses:
     def test_get_values_from_composer(self):
-        class MyForm(Form):
+        class MyForm(forms.Form):
             error_css_class = "This will be overriden"
             required_css_class = "This will be overriden"
 
-            name = CharField(
+            name = forms.CharField(
                 max_length=64,
             )
 
@@ -291,11 +311,11 @@ class TestCssClasses:
         assert css_classes == "invalid required"
 
     def test_get_values_from_form(self):
-        class MyForm(Form):
+        class MyForm(forms.Form):
             error_css_class = "invalid"
             required_css_class = "required"
 
-            name = CharField(
+            name = forms.CharField(
                 max_length=64,
             )
 

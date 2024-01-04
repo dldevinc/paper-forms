@@ -1,4 +1,4 @@
-from django.forms import Form, HiddenInput, NumberInput, TextInput
+from django import forms
 from django.forms.renderers import Jinja2, TemplatesSetting
 
 from paper_forms.composer import BaseComposer
@@ -27,7 +27,7 @@ class TestGetRenderer:
             renderer = "django.forms.renderers.Jinja2"
 
         composer = Composer()
-        renderer = composer.get_renderer(Form())
+        renderer = composer.get_renderer(forms.Form())
         assert isinstance(renderer, Jinja2)
 
     def test_instance(self):
@@ -35,11 +35,11 @@ class TestGetRenderer:
             renderer = Jinja2()
 
         composer = Composer()
-        renderer = composer.get_renderer(Form())
+        renderer = composer.get_renderer(forms.Form())
         assert isinstance(renderer, Jinja2)
 
     def test_form_renderer(self, paper_conf):
-        class MyForm(Form):
+        class MyForm(forms.Form):
             default_renderer = Jinja2
 
         composer = BaseComposer()
@@ -50,12 +50,12 @@ class TestGetRenderer:
         paper_conf.DEFAULT_FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
         composer = BaseComposer()
-        renderer = composer.get_renderer(Form())
+        renderer = composer.get_renderer(forms.Form())
         assert isinstance(renderer, TemplatesSetting)
 
     def test_empty(self):
         composer = BaseComposer()
-        renderer = composer.get_renderer(Form())
+        renderer = composer.get_renderer(forms.Form())
         assert renderer is None
 
 
@@ -68,27 +68,27 @@ class TestGetWidget:
     def test_override_class(self):
         class Composer(BaseComposer):
             widgets = {
-                "name": TextInput,
+                "name": forms.TextInput,
             }
 
         composer = Composer()
         widget = composer.get_widget("name")
-        assert isinstance(widget, TextInput)
+        assert isinstance(widget, forms.TextInput)
 
     def test_override_instance(self):
         class Composer(BaseComposer):
             widgets = {
-                "name": TextInput(),
+                "name": forms.TextInput(),
             }
 
         composer = Composer()
         widget = composer.get_widget("name")
-        assert isinstance(widget, TextInput)
+        assert isinstance(widget, forms.TextInput)
 
     def test_missing_name(self):
         class Composer(BaseComposer):
             widgets = {
-                "name": TextInput(),
+                "name": forms.TextInput(),
             }
 
         composer = Composer()
@@ -99,7 +99,7 @@ class TestGetWidget:
 class TestGetTemplateName:
     def test_default(self):
         composer = BaseComposer()
-        template_name = composer.get_template_name("name", widget=NumberInput())
+        template_name = composer.get_template_name("name", widget=forms.NumberInput())
         assert template_name == "django/forms/widgets/number.html"
 
     def test_override(self):
@@ -109,7 +109,7 @@ class TestGetTemplateName:
             }
 
         composer = Composer()
-        template_name = composer.get_template_name("name", widget=NumberInput())
+        template_name = composer.get_template_name("name", widget=forms.NumberInput())
         assert template_name == "path/to/widget.html"
 
     def test_hidden_widget_priority(self):
@@ -119,7 +119,7 @@ class TestGetTemplateName:
             }
 
         composer = Composer()
-        template_name = composer.get_template_name("name", widget=HiddenInput())
+        template_name = composer.get_template_name("name", widget=forms.HiddenInput())
         assert template_name == "django/forms/widgets/hidden.html"
 
     def test_missing_name(self):
@@ -129,14 +129,14 @@ class TestGetTemplateName:
             }
 
         composer = Composer()
-        template_name = composer.get_template_name("about", widget=TextInput())
+        template_name = composer.get_template_name("about", widget=forms.TextInput())
         assert template_name == "django/forms/widgets/text.html"
 
 
 class TestGetLabel:
     def test_empty(self):
         composer = BaseComposer()
-        label = composer.get_label("name", widget=TextInput())
+        label = composer.get_label("name", widget=forms.TextInput())
         assert label is None
 
     def test_override(self):
@@ -146,7 +146,7 @@ class TestGetLabel:
             }
 
         composer = Composer()
-        label = composer.get_label("name", widget=TextInput())
+        label = composer.get_label("name", widget=forms.TextInput())
         assert label == "Your Name"
 
     def test_missing_name(self):
@@ -156,14 +156,14 @@ class TestGetLabel:
             }
 
         composer = Composer()
-        label = composer.get_label("age", widget=NumberInput())
+        label = composer.get_label("age", widget=forms.NumberInput())
         assert label is None
 
 
 class TestGetHelpText:
     def test_empty(self):
         composer = BaseComposer()
-        help_text = composer.get_help_text("name", widget=TextInput())
+        help_text = composer.get_help_text("name", widget=forms.TextInput())
         assert help_text is None
 
     def test_override(self):
@@ -173,7 +173,7 @@ class TestGetHelpText:
             }
 
         composer = Composer()
-        help_text = composer.get_help_text("name", widget=TextInput())
+        help_text = composer.get_help_text("name", widget=forms.TextInput())
         assert help_text == "Enter your first name"
 
     def test_missing_name(self):
@@ -183,14 +183,14 @@ class TestGetHelpText:
             }
 
         composer = Composer()
-        help_text = composer.get_help_text("age", widget=NumberInput())
+        help_text = composer.get_help_text("age", widget=forms.NumberInput())
         assert help_text is None
 
 
 class TestGetCssClasses:
     def test_empty(self):
         composer = BaseComposer()
-        css_classes = composer.get_css_classes("name", widget=TextInput())
+        css_classes = composer.get_css_classes("name", widget=forms.TextInput())
         assert css_classes is None
 
     def test_override(self):
@@ -200,7 +200,7 @@ class TestGetCssClasses:
             }
 
         composer = Composer()
-        css_classes = composer.get_css_classes("name", widget=TextInput())
+        css_classes = composer.get_css_classes("name", widget=forms.TextInput())
         assert css_classes == "red blue green"
 
     def test_missing_name(self):
@@ -210,21 +210,21 @@ class TestGetCssClasses:
             }
 
         composer = Composer()
-        css_classes = composer.get_css_classes("age", widget=NumberInput())
+        css_classes = composer.get_css_classes("age", widget=forms.NumberInput())
         assert css_classes is None
 
 
 class TestBuildWidgetAttrs:
     def test_empty(self):
         composer = BaseComposer()
-        widget_attrs = composer.build_widget_attrs("name", None, widget=TextInput())
+        widget_attrs = composer.build_widget_attrs("name", None, widget=forms.TextInput())
         assert widget_attrs == {}
 
     def test_attrs(self):
         composer = BaseComposer()
         widget_attrs = composer.build_widget_attrs("name", {
             "placeholder": "Name",
-        }, widget=TextInput())
+        }, widget=forms.TextInput())
         assert widget_attrs == {
             "placeholder": "Name",
         }
@@ -233,7 +233,7 @@ class TestBuildWidgetAttrs:
 class TestBuildContext:
     def test_empty(self):
         composer = BaseComposer()
-        context = composer.build_context("name", None, widget=TextInput())
+        context = composer.build_context("name", None, widget=forms.TextInput())
         assert context == {}
 
     def test_attrs(self):
@@ -241,5 +241,5 @@ class TestBuildContext:
         base_context = {
             "theme": "dark",
         }
-        context = composer.build_widget_attrs("name", base_context, widget=TextInput())
+        context = composer.build_widget_attrs("name", base_context, widget=forms.TextInput())
         assert context is base_context
